@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     A script that automatically appends CRC-32s to the end of the files in a directory.
-    This is intended for anime fansubbing releases. You can change what it checks by modifying the 'ext' (extension) on L16.
+    This is intended for anime fansubbing releases. You can change what it checks by modifying the 'ext' (extension) on L22.
 """
 import argparse
 import binascii
