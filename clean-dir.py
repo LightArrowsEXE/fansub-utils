@@ -2,9 +2,8 @@
     Cleaning final release folder.
     This will only keep the mkv files and move the other files to the upper directory.
 
-    Please note that this NOT remove empty directories and does not have ANY exceptions. It will only keep mkv's.
+    Please note that this does NOT remove empty directories and does not have ANY exceptions. It will only keep mkv's.
 """
-
 import argparse
 import glob
 import shutil
@@ -22,6 +21,8 @@ else:
     filelist = glob.glob('*.*')
 
 ext = '.mkv'
+
+# TO-DO: Change file deletion to file moving, alternatively create a back-up directory.
 
 for f in filelist:
     if f.endswith('.py'): # Will not remove my other cleaning scripts
