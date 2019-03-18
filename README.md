@@ -1,14 +1,17 @@
-A small script that appends CRC-32's to every mkv in the current directory. 
-This script was intended for checking your fansubbed episodes/extra's before releasing..
-
-## Usage: 
-    $ cd "PATH/TO/DIRECTORY"
-    $ python auto-CRC.py [--args]
+A collection of utilities for fansubbing that I've written. Improvements and ideas are always welcome.
 
 ## Requirements:
 - Python 3
 
-## Arguments:
-| Property | Description | 
+## Usage:
+    $ python [script].py [--args]
+
+# Utilities:
+
+## auto-CRC
+A small script that appends CRC-32's to every mkv in the current directory.
+
+### Arguments:
+| Argument | Description | 
 | -------- | ----------- |
 | recursive | Search recursively. |
