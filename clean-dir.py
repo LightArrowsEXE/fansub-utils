@@ -16,9 +16,9 @@ parser.add_argument("-E", "--extension", help="change extension")
 args = parser.parse_args()
 
 if args.recursive:
-    filelist = glob.glob('**\*.*', recursive=True)
+    filelist = glob.glob('**/*', recursive=True)
 else:
-    filelist = glob.glob('*.*')
+    filelist = glob.glob('*')
 
 if args.extension:
     ext = f'.{args.extension}'
@@ -46,12 +46,12 @@ for f in filelist:
     else:
         pass
 
-print('-------------------------------------------------\nRemaining files:\n\n')
+print('-------------------------------------------------\nRemaining files:\n')
 
 if args.recursive:
-    filelist = glob.glob('**\*.*', recursive=True)
+    filelist = glob.glob('**/*', recursive=True)
 else:
-    filelist = glob.glob('*.*')
+    filelist = glob.glob('*')
     
 
 for f in filelist:
@@ -59,9 +59,6 @@ for f in filelist:
         os.rmdir(f)
     except Exception:
         pass
-
-    if f.startswith(new_directory):
-        pass
-    else:
-        print(f"'{f}'")
+    print(f"'{f}'")
+    
 print('\n\nPlease ensure that all the relevant files are included')
