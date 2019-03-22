@@ -55,10 +55,6 @@ else:
     
 
 for f in filelist:
-    try:
-        os.rmdir(f)
-    except Exception:
-        pass
     print(f"'{f}'")
     
 print('\n\nPlease ensure that all the relevant files are included')
