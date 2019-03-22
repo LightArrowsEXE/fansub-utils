@@ -12,10 +12,10 @@ A collection of utilities for fansubbing that I've written. Improvements and ide
 A small script that appends CRC-32's to every mkv in the current directory.
 
 ### Arguments:
-| Argument | Description | 
-| -------- | --------------------------------- |
-| --help | show this help message and exit
-| --recursive | check recursively |
+| Argument | Arg | Description | 
+| -------- | --- | --------------------------------- |
+| --help | -h |show this help message and exit
+| --recursive | -R | check recursively |
 
 ## clean-dir
 Cleans a directory of everything but mkv's or a given *ext*.<br>
