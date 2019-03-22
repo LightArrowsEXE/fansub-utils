@@ -23,8 +23,8 @@ Please make sure it doesn't accidently wipe everything else you *need* to includ
 *Ext* is intended to be used for other video extensions, like mp4, webm, etc.
 
 ### Arguments:
-| Argument |  |Description | 
-| -------- | --------------------------------- |
+| Argument | Arg | Description | 
+| -------- | --- |--------------------------------- |
 | --help | -h | show this help message and exit
 | --recursive | -R | check recursively |
 | --extension | -E | change extension |
