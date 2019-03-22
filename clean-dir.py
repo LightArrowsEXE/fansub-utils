@@ -12,7 +12,7 @@ import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-R", "--recursive", help="check recursively", action="store_true")
-parser.parse_args()
+parser.add_argument("-E", "--extension", help="change extension")
 args = parser.parse_args()
 
 if args.recursive:
@@ -20,23 +20,48 @@ if args.recursive:
 else:
     filelist = glob.glob('*.*')
 
-ext = '.mkv'
+if args.extension:
+    ext = f'.{args.extension}'
+else:
+    ext = '.mkv'
+print(f"Cleaning up everything without the {ext} extension\n")
 
-# TO-DO: Change file deletion to file moving, alternatively create a back-up directory.
+new_directory = '!_Cleaned Files'
 
 for f in filelist:
-    if f.endswith('.py'): # Will not remove my other cleaning scripts
-        pass  
-        print("Python file ignored.")
-    elif f.endswith(ext) is False:
-        os.remove(f)
-        print(f"Cleaned {f}")
+    if f.startswith(new_directory):
+        pass
+    elif not f.endswith(ext):
+        if os.path.isfile(f):
+            try:
+                cleaned_directory = os.path.join(os.getcwd(), new_directory)
+                if not os.path.exists(cleaned_directory):
+                    os.makedirs(new_directory)
+                    print(f"Created a new directory. Moving cleaned files into {cleaned_directory}")
+                shutil.copy(f, cleaned_directory)
+                os.remove(f)
+            except Exception:
+                pass
+        print(f"Cleaned '{f}'")
     else:
         pass
 
-print('-------------------------------------------------\nPrinting remaining files in directory...')
-time.sleep(3)
 print('-------------------------------------------------\nRemaining files:\n\n')
+
+if args.recursive:
+    filelist = glob.glob('**\*.*', recursive=True)
+else:
+    filelist = glob.glob('*.*')
+    
+
 for f in filelist:
-    print(f)
+    try:
+        os.rmdir(f)
+    except Exception:
+        pass
+
+    if f.startswith(new_directory):
+        pass
+    else:
+        print(f"'{f}'")
 print('\n\nPlease ensure that all the relevant files are included')
