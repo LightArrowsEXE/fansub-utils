@@ -12,9 +12,12 @@ import re
 
 
 def calculateCRC(filename):
-    calc = open(filename, 'rb').read()
-    calc = (binascii.crc32(calc) & 0xFFFFFFFF)
-    return "%08X" % calc
+    """
+    Takes a filename, and returns an 8 character hexadecimal CRC value
+    """
+    with open(filename, 'rb') as f:
+        calc = f.read()
+    return "%08X" % (binascii.crc32(calc) & 0xFFFFFFFF)
 
 
 if __name__ == "__main__":
