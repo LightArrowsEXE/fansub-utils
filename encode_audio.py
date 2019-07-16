@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
     Encodes audio from m2ts sources
 
@@ -28,8 +29,8 @@ else:
 
 for f in filelist:
     print(f)
-    if not re.search(r'\.(wav|m4a|flac)$', f):
-        subprocess.call(["ffmpeg", "-hide_banner", "-loglevel", "panic", f"-i", f,"-vn", f"{os.path.splitext(f)[0]}.wav"])
+    if not re.search(r'\.(wav|m4a|flac|lwi)$', f):
+        subprocess.call(["ffmpeg", "-hide_banner", "-loglevel", "panic", "-i", f,"-vn", f"{os.path.splitext(f)[0]}.wav"])
         if not os.path.exists(f'{f[0]}.m4a') or os.path.exists(f'{f[0]}.flac'):
             if args.flac:
                 subprocess.call(["ffmpeg", "-hide_banner", "-i", f"{os.path.splitext(f)[0]}.wav", "-vn", "-c:a flac", "-sample_fmt s16","compression_level 12", f"{os.path.splitext(f)[0]}.flac"])
@@ -44,5 +45,3 @@ for f in filelist:
         os.remove(f"{os.path.splitext(f)[0]}.wav")
     except OSError:
         pass
-
-

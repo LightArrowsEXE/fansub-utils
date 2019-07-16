@@ -2,7 +2,7 @@
 """
 This script appends CRC-32s to the end of the files in a directory.
 This is intended for anime fansubbing releases.
-You can change what it checks by modifying the 'ext' (extension) on L46.
+You can change what it checks by modifying the 'ext' (extension) on L47.
 Can be run both from the command line, and imported.
 """
 import argparse

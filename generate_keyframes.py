@@ -17,8 +17,8 @@ def generate_keyframes():
     else:
         files = glob.glob('*')
 
-    if args.ext:
-        ext_in = args.ext
+    if args.extension:
+        ext_in = args.extension
     else:
         ext_in = "mkv"
 
@@ -48,6 +48,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-R", "--recursive",
                         help="check recursively", action="store_true")
-    parser.add_argument("-E", "--ext", help="pick extension to generate keyframes for")
+    parser.add_argument("-E", "--extension", help="pick extension to generate keyframes for")
     args = parser.parse_args()
     generate_keyframes()

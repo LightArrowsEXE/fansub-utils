@@ -11,7 +11,8 @@ import os
 import time
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-R", "--recursive", help="check recursively", action="store_true")
+parser.add_argument("-R", "--recursive",
+                    help="check recursively", action="store_true")
 parser.add_argument("-E", "--extension", help="change extension")
 args = parser.parse_args()
 
@@ -37,7 +38,8 @@ for f in filelist:
                 cleaned_directory = os.path.join(os.getcwd(), new_directory)
                 if not os.path.exists(cleaned_directory):
                     os.makedirs(new_directory)
-                    print(f"Created a new directory. Moving cleaned files into {cleaned_directory}")
+                    print(
+                        f"Created a new directory. Moving cleaned files into {cleaned_directory}")
                 shutil.copy(f, cleaned_directory)
                 os.remove(f)
             except Exception:
@@ -52,9 +54,9 @@ if args.recursive:
     filelist = glob.glob('**/*', recursive=True)
 else:
     filelist = glob.glob('*')
-    
+
 
 for f in filelist:
     print(f"'{f}'")
-    
+
 print('\n\nPlease ensure that all the relevant files are included')
