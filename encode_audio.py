@@ -19,7 +19,8 @@ import re
 parser = argparse.ArgumentParser()
 parser.add_argument("-R", "--recursive",
                     help="check recursively", action="store_true")
-parser.add_argument("-F", "--flac", help="enables FLAC encoding")
+parser.add_argument("-F", "--flac",
+                    help="enables FLAC encoding")
 args = parser.parse_args()
 
 if args.recursive:
@@ -36,7 +37,7 @@ for f in filelist:
             if args.flac:
                 subprocess.call(["ffmpeg", "-i", f"{os.path.splitext(f)[0]}.wav", "-vn", "-c:a flac", "-sample_fmt s16","compression_level 12", f"{os.path.splitext(f)[0]}.flac"])
             else:
-                subprocess.call(["qaac", f"{os.path.splitext(f)[0]}.wav", "-V 127"])
+                subprocess.call(["qaac", f"{os.path.splitext(f)[0]}.wav", "-V 127", "--no-delay"])
         else:
             pass
     else:
