@@ -3,8 +3,10 @@
     Generic script to generate keyframes for all files of a given extension using kagefunc's generate_keyframes function.
 
     Dependencies:
-    * VapourSynth
-    * wwxd (https://github.com/dubhater/vapoursynth-wwxd)
+    * VapourSynth                                                           (http://vapoursynth.com/doc/installation.html)
+    * ffms2                                                                 (https://github.com/FFMS/ffms2)
+    * L-SMASH (when generating keyframes from BDs)                          (https://www.dropbox.com/sh/3i81ttxf028m1eh/AAABkQn4Y5w1k-toVhYLasmwa?dl=0)
+    * wwxd                                                                  (https://github.com/dubhater/vapoursynth-wwxd)
 """
 import glob
 import argparse
@@ -19,15 +21,14 @@ def generate_keyframes(clip: vs.VideoNode, out_path=None) -> None:
     probably only useful for fansubbing
     generates qp-filename for keyframes to simplify timing
     """
-    import os
     clip = core.resize.Bilinear(clip, 640, 360)  # speed up the analysis by resizing first
     clip = core.wwxd.WWXD(clip)
     out_txt = "# WWXD log file, using qpfile format\n\n"
     for i in range(clip.num_frames):
         if clip.get_frame(i).props.Scenechange == 1:
             out_txt += "%d I -1\n" % i
-        if i % 1000 == 0:
-            print(i)
+        if i % 500 == 0:
+            print(f"{i} frames")
     if out_path is None:
         out_path = os.path.expanduser("~") + "/Desktop/keyframes.txt"
     text_file = open(out_path, "w")
