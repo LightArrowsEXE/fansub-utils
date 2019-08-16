@@ -3,10 +3,8 @@
     Generic script to generate keyframes for all files of a given extension using kagefunc's generate_keyframes function.
 
     Dependencies:
-    * VapourSynth                                                           (http://vapoursynth.com/doc/installation.html)
-    * ffms2                                                                 (https://github.com/FFMS/ffms2)
-    * L-SMASH (when generating keyframes from BDs)                          (https://www.dropbox.com/sh/3i81ttxf028m1eh/AAABkQn4Y5w1k-toVhYLasmwa?dl=0)
-    * wwxd                                                                  (https://github.com/dubhater/vapoursynth-wwxd)
+    * VapourSynth
+    * wwxd (https://github.com/dubhater/vapoursynth-wwxd)
 """
 import glob
 import argparse
@@ -14,48 +12,66 @@ import os
 import vapoursynth as vs
 core = vs.core
 
-
 # Slightly modified from kagefunc to remove some dependencies
-def generate_keyframes(clip: vs.VideoNode, out_path=None) -> None:
+def generate_keyframes(clip: vs.VideoNode, out_path=None, no_header=False) -> None:
     """
     probably only useful for fansubbing
     generates qp-filename for keyframes to simplify timing
     """
-    clip = core.resize.Bilinear(clip, 640, 360)  # speed up the analysis by resizing first
+    clip = core.resize.Bilinear(clip, 640, 360, format=vs.YUV420P8)  # speed up the analysis by resizing first
     clip = core.wwxd.WWXD(clip)
-    out_txt = "# WWXD log file, using qpfile format\n\n"
+    if no_header:
+        out_txt = ''
+    else:
+        out_txt = "# WWXD log file, using qpfile format\n\n"
     for i in range(clip.num_frames):
         if clip.get_frame(i).props.Scenechange == 1:
             out_txt += "%d I -1\n" % i
-        if i % 500 == 0:
-            print(f"{i} frames")
-    if out_path is None:
-        out_path = os.path.expanduser("~") + "/Desktop/keyframes.txt"
+        if i % 1000 == 0:
+            print(f"Progress: {i}/{clip.num_frames} frames")
     text_file = open(out_path, "w")
     text_file.write(out_txt)
     text_file.close()
 
 
 def main():
-    if args.recursive:
-        files = glob.glob('**/*', recursive=True)
-    else:
-        files = glob.glob('*')
+    if args.file:
+        file_name = args.file
+        files = [file_name]
+        ext_in = os.path.splitext(files[0])[1]
 
-    if args.extension:
-        ext_in = args.extension
     else:
-        ext_in = "mkv"
+        if args.recursive:
+            files = glob.glob('**/*', recursive=True)
+        else:
+            files = glob.glob('*')
+
+        if args.extension:
+            ext_in = args.extension
+        else:
+            ext_in = "mkv"
+
+    if args.noheader:
+        no_header = True
+    else:
+        no_header = False
+
+    if args.outfile:
+        out_file = args.outfile
+    else:
+        out_file = None
 
     for f in files:
         if f.endswith(ext_in):
-            print(f"Generating keyframes for {f}:")
-            if f.endswith(".m2ts"):
+            print(f"Generating keyframes for {f}:\n")
+            if f.endswith("m2ts"):
                 src = core.lsmas.LWLibavSource(f)
             else:
                 src = core.ffms2.Source(f)
-            src = core.resize.Point(src, format=vs.YUV420P8, dither_type='error_diffusion')
-            generate_keyframes(src, os.path.abspath(f"{f}_keyframes.txt"))
+            if args.outfile:
+                generate_keyframes(src, os.path.join(os.path.dirname(f),out_file), no_header)
+            else:
+                generate_keyframes(src, os.path.abspath(f"{f[:-len(ext_in)]}_keyframes.txt"), no_header)
             if f.endswith(".m2ts"):
                 try:
                     os.remove(f"{f}.lwi")
@@ -66,13 +82,27 @@ def main():
                     os.remove(f"{f}.ffindex")
                 except OSError:
                     pass
+            print(f"Progress: {src.num_frames}/{src.num_frames} frames")
+            if args.outfile:
+                print(f"Output: {out_file}\nDone.")
+            else:
+                print(f"Output: {f[:-len(ext_in)]}_keyframes.txt\nDone.")
         else:
             pass
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("-F", "--file",
+                        help="specific file", action="store")
     parser.add_argument("-R", "--recursive",
                         help="check recursively", action="store_true")
     parser.add_argument("-E", "--extension", help="pick extension to generate keyframes for")
+    # TO-DO: Add mimetype recognition, add drag-and-drop functionality
+    # -E only exists so it automatically looks for a common video file type.
+    # If I can have it recognize video using mimetypes instead, there is no real need for this.
+    parser.add_argument("-N", "--noheader",
+                        help="do not include header line for aegisub", action="store_true")
+    parser.add_argument("-O", "--outfile",
+                        help="name for keyframes file output", action="store")
     args = parser.parse_args()
     main()
