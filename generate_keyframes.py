@@ -64,7 +64,7 @@ def main():
 
     for f in files:
         if f.endswith(ext_in):
-            print(f"Generating keyframes for {f}:\n")
+            print(f"\nGenerating keyframes for {f}:")
             if f.endswith("m2ts"):
                 src = core.lsmas.LWLibavSource(f)
             else:
@@ -74,7 +74,11 @@ def main():
                 trims = literal_eval(args.trims)
                 if type(trims) is not tuple:
                     trims = (trims,)
-                src = core.std.Splice([src[slice(*trim)] for trim in trims])
+                try:
+                    src = core.std.Splice([src[slice(*trim)] for trim in trims])
+                except:
+                    print("TypeError: Please make sure you’re using a list for this function.\nFor example: -T \"[100,200],[300,400],[500,600]\"")
+                    return
 
             if args.outfile:
                 generate_keyframes(src, os.path.join(os.path.dirname(f),out_file), no_header)
