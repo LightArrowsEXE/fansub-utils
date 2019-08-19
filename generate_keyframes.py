@@ -77,7 +77,7 @@ def main():
                 try:
                     src = core.std.Splice([src[slice(*trim)] for trim in trims])
                 except:
-                    print("TypeError: Please make sure you’re using a list for this function.\nFor example: -T \"[24,-24]\" , -T \"[None,30000]\",[None,-24]\", -T \"[None,16000],[16100,16200],[16300,None]\"")
+                    print("TypeError: Please make sure you’re using a list for this function.\nFor example: -T \"[24,-24]\" , -T \"[None,30000],[None,-24]\", -T \"[None,16000],[16100,16200],[16300,None]\"")
                     return
 
             if args.outfile:
