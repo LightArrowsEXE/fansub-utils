@@ -36,8 +36,15 @@ or FLAC.
 
 ## generate_keyframes
 Generic script to generate keyframes
-for all files of a given extension
-using kagefunc's `generate_keyframes` function.
+for all files of a given extension.
+Heavily inspired by kagefunc's `generate_keyframes`,
+but made to work as a standalone script
+for timers.
+Special thanks to begna
+for helping me with writing
+big parts
+of this.
+
 
 ### Arguments:
 | Argument | Arg | Description |
@@ -45,13 +52,15 @@ using kagefunc's `generate_keyframes` function.
 | --help | -h | show this help message and exit |
 | --recursive | -R | check recursively |
 | --extension | -E | pick extension to generate keyframes for |
+| --noheader | -N | do not include header line for aegisub |
+| --outfile | -O | name for keyframes file output |
+| --trims | -T | string of trims to source file. format: "[inclusive,exclusive],[inclusive,exclusive],[None,exclusive],[inclusive,None]\" |
 
 ## remux
-Generic script for remuxing files
-from a certain filetype into another.<br>
-Remuxes mkv's into mp4's
+Generic script for remuxing videos
+from a certain filetype into another.
+Remuxes mkv's into mp4's by default.
 
-by default
 
 ### Arguments:
 | Argument | Arg | Description |
