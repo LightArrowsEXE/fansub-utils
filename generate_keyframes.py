@@ -10,6 +10,7 @@ import glob
 import argparse
 import os
 import vapoursynth as vs
+from ast import literal_eval
 core = vs.core
 
 # Slightly modified from kagefunc to remove some dependencies
@@ -68,10 +69,18 @@ def main():
                 src = core.lsmas.LWLibavSource(f)
             else:
                 src = core.ffms2.Source(f)
+
+            if args.trims:
+                trims = literal_eval(args.trims)
+                if type(trims) is not tuple:
+                    trims = (trims,)
+                src = core.std.Splice([src[slice(*trim)] for trim in trims])
+
             if args.outfile:
                 generate_keyframes(src, os.path.join(os.path.dirname(f),out_file), no_header)
             else:
                 generate_keyframes(src, os.path.abspath(f"{f[:-len(ext_in)]}_keyframes.txt"), no_header)
+
             if f.endswith(".m2ts"):
                 try:
                     os.remove(f"{f}.lwi")
@@ -104,5 +113,7 @@ if __name__ == "__main__":
                         help="do not include header line for aegisub", action="store_true")
     parser.add_argument("-O", "--outfile",
                         help="name for keyframes file output", action="store")
+    parser.add_argument("-T", "--trims",
+                        help="string of trims to source file. format: \"[inclusive,exclusive],[inclusive,exclusive],[None,exclusive],[inclusive,None]\"", action="store")
     args = parser.parse_args()
     main()
