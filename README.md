@@ -54,7 +54,24 @@ of this.
 | --extension | -E | pick extension to generate keyframes for |
 | --noheader | -N | do not include header line for aegisub |
 | --outfile | -O | name for keyframes file output |
-| --trims | -T | string of trims to source file. format: "[inclusive,exclusive],[inclusive,exclusive],[None,exclusive],[inclusive,None]\" |
+| --trims | -T | string of trims to source file.<br>format: "[inclusive,exclusive],[inclusive,exclusive],[None,exclusive],[inclusive,None]\" |
+
+### Usage Example:
+
+**Trim one second off of the start and end**
+```bash
+$ python generate_keyframes.py -T "[24,-24]"
+```
+
+**Trim three seconds off of the end**
+```bash
+$ python generate_keyframes.py -T "[None,-72]"
+```
+
+**Trim the first five seconds**
+```bash
+$ python generate_keyframes.py -T "[120,None]"
+```
 
 ## remux
 Generic script for remuxing videos
