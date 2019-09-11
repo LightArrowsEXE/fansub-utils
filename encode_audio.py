@@ -23,7 +23,7 @@ def main():
 
     for f in filelist:
         # TO-DO: Figure out a reliable way to only loop through audio files, but ignore the following three. Maybe messing with MIME recognition?
-        if not re.search(r'\.(wav|m4a|opus|flac)$', f):
+        if not re.search(r'\.(wav|m4a|opus|flac|lwi|ffindex)$', f):
             print(f)
             if args.codec in ["aac"]:
                 subprocess.call(["ffmpeg", "-loglevel", "panic", "-stats", "-i", f,"-vn", f"{os.path.splitext(f)[0]}.wav"])
