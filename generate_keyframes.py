@@ -105,7 +105,7 @@ if __name__ == "__main__":
                         action="store_true")
     parser.add_argument("-O", "--outfile",
                         default=None,
-                        help="name for keyframes file output", action="store")
+                        help="name for keyframes file output (Note: requires --file (F) to be set)", action="store")
     parser.add_argument("-T", "--trims",
                         help="string of trims to source file. " \
                              "format: \"[inclusive,exclusive],[inclusive,exclusive],[None,exclusive],[inclusive,None]\"",
