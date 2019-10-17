@@ -28,8 +28,8 @@ def generate_keyframes(clip: vs.VideoNode, out_path=None, no_header=False) -> No
     for i in range(clip.num_frames):
         if clip.get_frame(i).props.Scenechange == 1:
             out_txt += "%d I -1\n" % i
-        if i % 1000 == 0:
-            print(f"Progress: {i}/{clip.num_frames} frames")
+        if i % 1 == 0:
+            print(f"Progress: {i}/{clip.num_frames} frames", end="\r")
     text_file = open(out_path, "w")
     text_file.write(out_txt)
     text_file.close()
