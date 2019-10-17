@@ -36,13 +36,16 @@ def generate_keyframes(clip: vs.VideoNode, out_path=None, no_header=False) -> No
 
 
 def main():
+    if args.outfile and not args.file:
+        print("Warning: Please set --file (-F) when using --outfile (-O)!")
+        return
+
     if args.file:
         files = [args.file]
         ext_in = os.path.splitext(files[0])[1]
     else:
-        files = glob.glob('*', recursive=args.recursive)
+        files = glob.glob('**/*', recursive=True) if args.recursive else glob.glob('*')
         ext_in = args.extension if args.extension else "mkv"
-
 
     for f in files:
         if f.endswith(ext_in):
