@@ -23,7 +23,7 @@ def generate_keyframes(clip: vs.VideoNode, out_path=None, no_header=False) -> No
     clip = core.resize.Bilinear(clip, 640, 360, format=vs.YUV420P8)  # speed up the analysis by resizing first
     clip = core.wwxd.WWXD(clip)
 
-    out_txt = '' if no_header else "# WWXD log file, using qpfile format\n# Please do not modify this file\n"
+    out_txt = '' if no_header else "# WWXD log file, using qpfile format\n# Please do not modify this file\n\n"
 
     for i in range(clip.num_frames):
         if clip.get_frame(i).props.Scenechange == 1:
