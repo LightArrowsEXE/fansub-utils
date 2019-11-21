@@ -49,6 +49,10 @@ def main():
 
     for f in files:
         if f.endswith(ext_in):
+            if args.check_exists:
+                if os.path.exists(f"{f[:-len(ext_in)]}_keyframes.txt"):
+                    print(f"\nKeyframes already exist for {f}. Skipping.")
+                    continue
             print(f"\nGenerating keyframes for {f}:")
 
             src = core.lsmas.LWLibavSource(f) if f.endswith("m2ts") else core.ffms2.Source(f)
@@ -71,18 +75,12 @@ def main():
                 generate_keyframes(src, os.path.abspath(f"{f[:-len(ext_in)]}_keyframes.txt"), args.noheader)
             print(f"Progress: {src.num_frames}/{src.num_frames} frames")
 
-            if f.endswith(".m2ts"):
-                try:
-                    os.remove(f"{f}.lwi")
-                except FileNotFoundError:
-                    pass
-            else:
-                try:
-                    os.remove(f"{f}.ffindex")
-                except FileNotFoundError:
-                    pass
+            try:
+                os.remove(f"{f}.lwi") if f.endswith("m2ts") else os.remove(f"{f}.ffindex")
+            except FileNotFoundError:
+                pass
 
-            print(f"Output: {args.outfile}\nDone.") if args.outfile and args.file else print(f"Output: {f[:-len(ext_in)]}_keyframes.txt\nDone.")
+            print(f"Output: {args.outfile}") if args.outfile and args.file else print(f"Output: {f[:-len(ext_in)]}_keyframes.txt")
 
 
 if __name__ == "__main__":
@@ -110,7 +108,12 @@ if __name__ == "__main__":
                         help="string of trims to source file. " \
                              "format: \"[inclusive,exclusive],[inclusive,exclusive],[None,exclusive],[inclusive,None]\"",
                         action="store")
+    parser.add_argument("-C", "--check_exists",
+                        default=True,
+                        help="Check if keyframe file already exists (default: %(default)s)",
+                        action="store_false")
     # TO-DO: Add a SCXvid mode for those where the WWXD format
     # doesn't appear to work properly.
     args = parser.parse_args()
     main()
+    print(f"\nDone generating keyframes.")
