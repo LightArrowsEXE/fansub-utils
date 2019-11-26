@@ -20,7 +20,8 @@ def generate_keyframes(clip: vs.VideoNode, out_path=None, no_header=False) -> No
     probably only useful for fansubbing
     generates qp-filename for keyframes to simplify timing
     """
-    clip = core.resize.Bilinear(clip, 640, 360, format=vs.YUV420P8)  # speed up the analysis by resizing first
+    clip = core.resize.Bilinear(
+        clip, 640, 360, format=vs.YUV420P8)  # speed up the analysis by resizing first
     clip = core.wwxd.WWXD(clip)
 
     out_txt = '' if no_header else "# WWXD log file, using qpfile format\n# Please do not modify this file\n\n"
@@ -30,9 +31,9 @@ def generate_keyframes(clip: vs.VideoNode, out_path=None, no_header=False) -> No
             out_txt += "%d I -1\n" % i
         if i % 1 == 0:
             print(f"Progress: {i}/{clip.num_frames} frames", end="\r")
-    text_file = open(out_path, "w")
-    text_file.write(out_txt)
-    text_file.close()
+
+    with open(out_path, 'w') as text_file:
+        text_file.write(out_txt)
 
 
 def main():
@@ -44,43 +45,53 @@ def main():
         files = [args.file]
         ext_in = os.path.splitext(files[0])[1]
     else:
-        files = glob.glob('**/*', recursive=True) if args.recursive else glob.glob('*')
+        files = glob.glob(
+            '**/*', recursive=True) if args.recursive else glob.glob('*')
         ext_in = args.extension if args.extension else "mkv"
 
     for f in files:
-        if f.endswith(ext_in):
-            if args.check_exists:
-                if os.path.exists(f"{f[:-len(ext_in)]}_keyframes.txt"):
-                    print(f"\nKeyframes already exist for {f}. Skipping.")
-                    continue
-            print(f"\nGenerating keyframes for {f}:")
+        if not f.endswith(ext_in):
+            continue
 
-            src = core.lsmas.LWLibavSource(f) if f.endswith("m2ts") else core.ffms2.Source(f)
+        if args.check_exists and os.path.exists(f"{f[:-len(ext_in)]}_keyframes.txt"):
+            print(f"\nKeyframes already exist for {f}. Skipping.")
+            continue
+        print(f"\nGenerating keyframes for {f}:")
 
-            print(f"Video info: {src.width}x{src.height}, {src.fps} fps, {src.format.name}")
+        src = core.lsmas.LWLibavSource(f) if f.endswith(
+            "m2ts") else core.ffms2.Source(f)
 
-            if args.trims:
-                trims = literal_eval(args.trims)
-                if type(trims) is not tuple:
-                    trims = (trims,)
-                try:
-                    src = core.std.Splice([src[slice(*trim)] for trim in trims])
-                except:
-                    print("TypeError: Please make sure you’re using a list for this function.\nExample: -T \"[24,-24]\" , -T \"[None,30000],[None,-24]\", -T \"[None,16000],[16100,16200],[16300,None]\"")
-                    return
+        print(
+            f"Video info: {src.width}x{src.height}, {src.fps} fps, {src.format.name}")
 
-            if args.outfile and args.file:
-                generate_keyframes(src, os.path.join(os.path.dirname(f),args.outfile), args.noheader)
-            else:
-                generate_keyframes(src, os.path.abspath(f"{f[:-len(ext_in)]}_keyframes.txt"), args.noheader)
-            print(f"Progress: {src.num_frames}/{src.num_frames} frames")
-
+        if args.trims:
+            trims = literal_eval(args.trims)
+            if type(trims) is not tuple:
+                trims = (trims,)
             try:
-                os.remove(f"{f}.lwi") if f.endswith("m2ts") else os.remove(f"{f}.ffindex")
-            except FileNotFoundError:
-                pass
+                src = core.std.Splice([src[slice(*trim)]
+                                       for trim in trims])
+            except:
+                print(
+                    "TypeError: Please make sure you’re using a list for this function.\nExample: -T \"[24,-24]\" , -T \"[None,30000],[None,-24]\", -T \"[None,16000],[16100,16200],[16300,None]\"")
+                return
 
-            print(f"Output: {args.outfile}") if args.outfile and args.file else print(f"Output: {f[:-len(ext_in)]}_keyframes.txt")
+        if args.outfile and args.file:
+            generate_keyframes(src, os.path.join(
+                os.path.dirname(f), args.outfile), args.noheader)
+        else:
+            generate_keyframes(src, os.path.abspath(
+                f"{f[:-len(ext_in)]}_keyframes.txt"), args.noheader)
+        print(f"Progress: {src.num_frames}/{src.num_frames} frames")
+
+        try:
+            os.remove(f"{f}.lwi") if f.endswith(
+                "m2ts") else os.remove(f"{f}.ffindex")
+        except FileNotFoundError:
+            pass
+
+        print(f"Output: {args.outfile}") if args.outfile and args.file else print(
+            f"Output: {f[:-len(ext_in)]}_keyframes.txt")
 
 
 if __name__ == "__main__":
@@ -105,7 +116,7 @@ if __name__ == "__main__":
                         default=None,
                         help="name for keyframes file output (Note: requires --file (-F) to be set)", action="store")
     parser.add_argument("-T", "--trims",
-                        help="string of trims to source file. " \
+                        help="string of trims to source file. "
                              "format: \"[inclusive,exclusive],[inclusive,exclusive],[None,exclusive],[inclusive,None]\"",
                         action="store")
     parser.add_argument("-C", "--check_exists",
