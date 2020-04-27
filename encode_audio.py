@@ -17,7 +17,7 @@ import subprocess
 
 __author__ = "LightArrowsEXE"
 __license__ = 'MIT'
-__version__ = '1.0'
+__version__ = '1.0.1'
 
 
 ignored_formats = ["audio/opus", "audio/aac"]
@@ -36,10 +36,16 @@ def main():
 def encode(f):
     print(f"\n{f}\n")
     if args.wav_only:
-        if args.core:
-            subprocess.call(["eac3to", f, "-log=NUL", f"{args.track}:", f"{os.path.splitext(f)[0]}.wav", "-core"])
+        if args.track:
+            if args.core:
+                subprocess.call(["eac3to", f, "-log=NUL", f"{args.track}:", f"{os.path.splitext(f)[0]}_Track0{args.track}.wav", "-core"])
+            else:
+                subprocess.call(["eac3to", f, "-log=NUL", f"{args.track}:", f"{os.path.splitext(f)[0]}_Track0{args.track}.wav"])
         else:
-            subprocess.call(["eac3to", f, "-log=NUL", f"{args.track}:" f"{os.path.splitext(f)[0]}.wav"])
+            if args.core:
+                subprocess.call(["eac3to", f, "-log=NUL", f"{os.path.splitext(f)[0]}.wav", "-core"])
+            else:
+                subprocess.call(["eac3to", f, "-log=NUL", f"{os.path.splitext(f)[0]}.wav"])
     else:
         subprocess.call(["flac", f, "-8", "-o", f"{os.path.splitext(f)[0]}.flac"])
         subprocess.call(["qaac", f, "-V 127", "--no-delay"])
@@ -57,7 +63,7 @@ if __name__ == "__main__":
                         action="store_true", default=False,
                         help="Decodes DTS core. Only select if you're dealing with DTS audio (default: %(default)s)")
     parser.add_argument("-T", "--track",
-                        action="store", type=int, default=2,
+                        action="store", type=int, default=None,
                         help="Track to trim using eac3to (default: %(default)s)")
     parser.parse_args()
     args = parser.parse_args()
