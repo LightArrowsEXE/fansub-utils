@@ -19,7 +19,7 @@ import tempfile
 
 __author__ = "LightArrowsEXE"
 __license__ = 'MIT'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 
 
 ignored_formats = ["audio/opus", "audio/aac"]
@@ -39,15 +39,9 @@ def encode(f):
     print(f"\n{f}\n")
     if args.wav_only:
         if args.track:
-            if args.core:
-                subprocess.run(["eac3to", f, "-log=NUL", f"{args.track}:", f"{os.path.splitext(f)[0]}_Track0{args.track}.wav", "-core"])
-            else:
-                subprocess.run(["eac3to", f, "-log=NUL", f"{args.track}:", f"{os.path.splitext(f)[0]}_Track0{args.track}.wav"])
+            subprocess.run(["eac3to", f, "-log=NUL", f"{args.track}:", f"{os.path.splitext(f)[0]}_Track0{args.track}.wav"])
         else:
-            if args.core:
-                subprocess.run(["eac3to", f, "-log=NUL", f"{os.path.splitext(f)[0]}.wav", "-core"])
-            else:
-                subprocess.run(["eac3to", f, "-log=NUL", f"{os.path.splitext(f)[0]}.wav"])
+            subprocess.run(["eac3to", f, "-log=NUL", f"{os.path.splitext(f)[0]}.wav"])
     else:
         temp = tempfile.mkstemp(prefix=f"{os.path.splitext(f)[0]}_")
         subprocess.run(["ffmpeg", "-i", f, "-loglevel", "panic", "-stats", f"{temp[1]}.wav"])
@@ -66,12 +60,9 @@ if __name__ == "__main__":
     parser.add_argument("-W", "--wav_only",
                         action="store_true", default=False,
                         help="Encode just a PCM file (default: %(default)s)")
-    parser.add_argument("-C", "--core",
-                        action="store_true", default=False,
-                        help="Decodes DTS core. Only select if you're dealing with DTS audio (default: %(default)s)")
     parser.add_argument("-T", "--track",
                         action="store", type=int, default=None,
-                        help="Track to trim using eac3to (default: %(default)s)")
+                        help="Track to encode using eac3to. If none; first audio track (default: %(default)s)")
     parser.add_argument("--noflac",
                         action="store_true", default=False,
                         help="Disable FLAC encoding (default: %(default)s)")
