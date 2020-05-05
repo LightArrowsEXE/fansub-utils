@@ -8,41 +8,62 @@ Can be run both from the command line, and imported.
 import argparse
 import binascii
 import glob
-import os.path
+import mimetypes
+import os
 import re
 
+__author__ = "LightArrowsEXE"
+__license__ = 'MIT'
+__version__ = '1.0'
 
-def calculateCRC(filename):
-    """
-    Takes a filename, and returns an 8 character hexadecimal CRC value
-    """
-    with open(filename, 'rb') as f:
-        calc = f.read()
+
+def calculateCRC(f):
+    with open(f, 'rb') as file:
+        calc = file.read()
     return "%08X" % (binascii.crc32(calc) & 0xFFFFFFFF)
 
 
-def main(ext, recursive=False):
-    if recursive:
-        filelist = glob.glob('**/%s' % ext, recursive=True)
+def strip_crc(f):
+    if re.search(r'\[[0-9a-fA-F]{8}\]', f):
+        strip = re.sub(r'\[[0-9a-fA-F]{8}\]', '', f)
+
+        # Hate how re.sub leaves some whitespace
+        filename = os.path.splitext(strip)[0]
+        filename = filename[:-1] + os.path.splitext(strip)[1]
+
+        os.rename(f, filename)
+        print(f"[-] {f} stripped")
+
+
+def main(recursive=False):
+    if args.recursive:
+        filelist = glob.glob('**/*', recursive=True)
     else:
-        filelist = glob.glob(ext)
+        filelist = glob.glob('*')
 
     for f in filelist:
-        if re.search(r'\[[0-9a-fA-F]{8}\]', f):
-            print(f"Filename already has a CRC.\n{f} is unchanged.\n")
-        else:
-            crc = calculateCRC(f)
-            removeExt = os.path.splitext(f)[0]
-            filename = f'{removeExt} [{crc}]{ext[1:]}'
-            os.rename(f, filename)
-            print(f"Old Name: {f} \nNew Name: {filename}\n")
+        mime = mimetypes.types_map.get(os.path.splitext(f)[-1], "")
+        if mime.startswith("video/") or f.endswith('.m2ts') or f.endswith('.mkv'):
+            if args.strip:
+                strip_crc(f)
+            else:
+                crc = calculateCRC(f)
+                if re.search(crc, f):
+                    print(f"[*] {f}, correct CRC already present in filename")
+                else:
+                    filename = f'{os.path.splitext(f)[0]} [{crc}]{os.path.splitext(f)[1]}'
+                    os.rename(f, filename)
+                    print(f"[+] {f}, CRC: [{crc}]")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-R", "--recursive", help="check recursively",
-                        action="store_true")
+    parser.add_argument("-R", "--recursive",
+                        action="store_true", default=False,
+                        help="check recursively (default: %(default)s)")
+    parser.add_argument("-S", "--strip",
+                        action="store_true", default=False,
+                        help="strip CRCs from filenames (default: %(default)s)")
     parser.parse_args()
     args = parser.parse_args()
-    ext = '*.mkv'
-    main(ext, args.recursive)
+    main()
