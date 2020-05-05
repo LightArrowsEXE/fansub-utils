@@ -19,7 +19,7 @@ import tempfile
 
 __author__ = "LightArrowsEXE"
 __license__ = 'MIT'
-__version__ = '1.0.3'
+__version__ = '1.0.4'
 
 
 ignored_formats = ["audio/opus", "audio/aac"]
@@ -35,6 +35,16 @@ def main():
                 encode(f)
 
 
+def encode_flac(f):
+    subprocess.run(["eac3to", f, "-log=NUL", f"{os.path.splitext(f)[0]}.flac"])
+
+
+def encode_aac(f):
+    temp = tempfile.mkstemp(prefix=f"{os.path.splitext(f)[0]}_")
+    subprocess.run(["ffmpeg", "-i", f, "-loglevel", "panic", "-stats", f"{temp[1]}.wav"])
+    subprocess.run(["qaac", f"{temp[1]}.wav", "-V 127", "--no-delay", "-o", f"{os.path.splitext(f)[0]}.m4a"])
+
+
 def encode(f):
     print(f"\n{f}\n")
     if args.wav_only:
@@ -43,12 +53,10 @@ def encode(f):
         else:
             subprocess.run(["eac3to", f, "-log=NUL", f"{os.path.splitext(f)[0]}.wav"])
     else:
-        temp = tempfile.mkstemp(prefix=f"{os.path.splitext(f)[0]}_")
-        subprocess.run(["ffmpeg", "-i", f, "-loglevel", "panic", "-stats", f"{temp[1]}.wav"])
         if not args.noflac:
-            subprocess.run(["flac", f"{temp[1]}.wav", "-8", "-o", f"{os.path.splitext(f)[0]}.flac"])
+            encode_flac(f)
         if not args.noaac:
-            subprocess.run(["qaac", f"{temp[1]}.wav", "-V 127", "--no-delay", "-o", f"{os.path.splitext(f)[0]}.m4a"])
+            encode_aac(f)
         os.remove(f)
 
 
