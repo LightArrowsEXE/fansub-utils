@@ -7,12 +7,20 @@
     * VapourSynth
     * wwxd (https://github.com/dubhater/vapoursynth-wwxd)
 """
-import vapoursynth as vs
-import glob
 import argparse
+import glob
+import mimetypes
 import os
 from ast import literal_eval
+
+import vapoursynth as vs
+
 core = vs.core
+
+__author__ = "LightArrowsEXE"
+__license__ = 'MIT'
+__version__ = '1.0'
+
 
 # Slightly modified from kagefunc to remove some dependencies
 def generate_keyframes(clip: vs.VideoNode, out_path=None, no_header=False) -> None:
@@ -20,8 +28,8 @@ def generate_keyframes(clip: vs.VideoNode, out_path=None, no_header=False) -> No
     probably only useful for fansubbing
     generates qp-filename for keyframes to simplify timing
     """
-    clip = core.resize.Bilinear(clip, 640, 360, format=vs.YUV420P8)  # speed up the analysis by resizing first
-    clip = core.wwxd.WWXD(clip)
+    clip = core.resize.Bilinear(clip, 640, 360, format=vs.YUV420P8)
+    clip = core.wwxd.WWXD(clip) # speed up the analysis by resizing first
 
     out_txt = '' if no_header else "# WWXD log file, using qpfile format\n# Please do not modify this file\n\n"
 
@@ -42,22 +50,22 @@ def main():
 
     if args.file:
         files = [args.file]
-        ext_in = os.path.splitext(files[0])[1]
     else:
         files = glob.glob('**/*', recursive=True) if args.recursive else glob.glob('*')
-        ext_in = args.extension if args.extension else "mkv"
 
     for f in files:
-        if f.endswith(ext_in):
+        mime = mimetypes.types_map.get(os.path.splitext(f)[-1], "")
+        # Not entirely sure why mkv's fail, as they have a mimetype of "video/x-matroska"
+        if mime.startswith("video/") or f.endswith('.m2ts') or f.endswith('.mkv'):
             if args.check_exists:
-                if os.path.exists(f"{f[:-len(ext_in)]}_keyframes.txt"):
+                if os.path.exists(f"{os.path.splitext(f)[0]}_keyframes.txt"):
                     print(f"\nKeyframes already exist for {f}. Skipping.")
                     continue
-            print(f"\nGenerating keyframes for {f}:")
 
-            src = core.lsmas.LWLibavSource(f) if f.endswith("m2ts") else core.ffms2.Source(f)
+            src = core.lsmas.LWLibavSource(f) if f.endswith(".m2ts") else core.ffms2.Source(f)
 
-            print(f"Video info: {src.width}x{src.height}, {src.fps} fps, {src.format.name}")
+            mime = mimetypes.types_map.get(os.path.splitext(f)[-1]) or "Unknown"
+            print(f"\nVideo info\nFilename: {f}\nDimensions: {src.width}x{src.height}\nFramerate: {src.fps}\nFormat: {src.format.name}\nMimetype: {mime}\n")
 
             if args.trims:
                 trims = literal_eval(args.trims)
@@ -72,15 +80,15 @@ def main():
             if args.outfile and args.file:
                 generate_keyframes(src, os.path.join(os.path.dirname(f),args.outfile), args.noheader)
             else:
-                generate_keyframes(src, os.path.abspath(f"{f[:-len(ext_in)]}_keyframes.txt"), args.noheader)
+                generate_keyframes(src, os.path.abspath(f"{os.path.splitext(f)[0]}_keyframes.txt"), args.noheader)
             print(f"Progress: {src.num_frames}/{src.num_frames} frames")
 
             try:
-                os.remove(f"{f}.lwi") if f.endswith("m2ts") else os.remove(f"{f}.ffindex")
+                os.remove(f"{f}.lwi") if f.endswith(".m2ts") else os.remove(f"{f}.ffindex")
             except FileNotFoundError:
                 pass
 
-            print(f"Output: {args.outfile}") if args.outfile and args.file else print(f"Output: {f[:-len(ext_in)]}_keyframes.txt")
+            print(f"Output: {args.outfile}") if args.outfile and args.file else print(f"Output: {os.path.splitext(f)[0]}_keyframes.txt")
 
 
 if __name__ == "__main__":
@@ -89,29 +97,21 @@ if __name__ == "__main__":
                         help="generate keyframes for a specific file",
                         action="store")
     parser.add_argument("-R", "--recursive",
-                        help="search files recursively",
-                        action="store_true")
-    parser.add_argument("-E", "--extension",
-                        default="mkv",
-                        help="pick extension to generate keyframes for (default: %(default)s)",
-                        action="store")
-    # TO-DO: Add mimetype recognition, add drag-and-drop functionality
-    # -E only exists so it automatically looks for a common video file type.
-    # If I can have it recognize video using mimetypes instead, there is no real need for this.
+                        action="store_true", default=False,
+                        help="search files recursively (default: %(default)s)")
     parser.add_argument("-N", "--noheader",
-                        help="do not include header line for aegisub",
-                        action="store_true")
+                        action="store_true", default=False,
+                        help="do not include header line for aegisub (default: %(default)s)")
     parser.add_argument("-O", "--outfile",
-                        default=None,
-                        help="name for keyframes file output (Note: requires --file (-F) to be set)", action="store")
+                        action="store", default=None,
+                        help="name for keyframes file output (Note: requires --file (-F) to be set)")
     parser.add_argument("-T", "--trims",
+                        action="store",
                         help="string of trims to source file. " \
-                             "format: \"[inclusive,exclusive],[inclusive,exclusive],[None,exclusive],[inclusive,None]\"",
-                        action="store")
+                             "format: \"[inclusive,exclusive],[inclusive,exclusive],[None,exclusive],[inclusive,None]\"")
     parser.add_argument("-C", "--check_exists",
-                        default=True,
-                        help="Check if keyframe file already exists (default: %(default)s)",
-                        action="store_false")
+                        action="store_true", default=False,
+                        help="Check if keyframe file already exists (default: %(default)s)")
     # TO-DO: Add a SCXvid mode for those where the WWXD format
     # doesn't appear to work properly.
     args = parser.parse_args()
