@@ -6,6 +6,7 @@
     Dependencies:
     * VapourSynth
     * wwxd (https://github.com/dubhater/vapoursynth-wwxd)
+    * vapoursynth-scxvid (Optional: if set to use over wwxd) (https://github.com/dubhater/vapoursynth-scxvid)
 """
 import argparse
 import glob
@@ -19,23 +20,32 @@ core = vs.core
 
 __author__ = "LightArrowsEXE"
 __license__ = 'MIT'
-__version__ = '1.0'
+__version__ = '1.1'
 
 
 # Slightly modified from kagefunc to remove some dependencies
 def generate_keyframes(clip: vs.VideoNode, out_path=None, no_header=False) -> None:
     """
-    probably only useful for fansubbing
-    generates qp-filename for keyframes to simplify timing
+    The exact same version as found in kagefunc.
     """
     clip = core.resize.Bilinear(clip, 640, 360, format=vs.YUV420P8)
-    clip = core.wwxd.WWXD(clip) # speed up the analysis by resizing first
 
-    out_txt = '' if no_header else "# WWXD log file, using qpfile format\n# Please do not modify this file\n\n"
+    if args.scxvid:
+        clip = core.scxvid.Scxvid(clip)
+    else:
+        clip = core.wwxd.WWXD(clip) # speed up the analysis by resizing first
+
+    txt = "# Scxvid log file, using qpfile format\n# Please do not modify this file\n\n" if args.scxvid else \
+            "# WWXD log file, using qpfile format\n# Please do not modify this file\n\n"
+    out_txt = '' if no_header else txt
 
     for i in range(clip.num_frames):
-        if clip.get_frame(i).props.Scenechange == 1:
-            out_txt += "%d I -1\n" % i
+        if args.scxvid:
+            if clip.get_frame(i).props["_SceneChangePrev"] == 1:
+                out_txt += "%d I -1\n" % i
+        else:
+            if clip.get_frame(i).props["Scenechange"] == 1:
+                out_txt += "%d I -1\n" % i
         if i % 1 == 0:
             print(f"Progress: {i}/{clip.num_frames} frames", end="\r")
     text_file = open(out_path, "w")
@@ -96,6 +106,9 @@ if __name__ == "__main__":
     parser.add_argument("-F", "--file",
                         help="generate keyframes for a specific file",
                         action="store")
+    parser.add_argument("--scxvid",
+                        action="store_true", default=False,
+                        help="use scxvid for keyframe generating (default: %(default)s)")
     parser.add_argument("-R", "--recursive",
                         action="store_true", default=False,
                         help="search files recursively (default: %(default)s)")
@@ -112,8 +125,7 @@ if __name__ == "__main__":
     parser.add_argument("-C", "--check_exists",
                         action="store_true", default=False,
                         help="Check if keyframe file already exists (default: %(default)s)")
-    # TO-DO: Add a SCXvid mode for those where the WWXD format
-    # doesn't appear to work properly.
+    # TO-DO: Allow other formats than qpfile format
     args = parser.parse_args()
     main()
     print(f"\nDone generating keyframes.")
