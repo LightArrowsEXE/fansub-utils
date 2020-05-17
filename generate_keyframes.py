@@ -20,7 +20,7 @@ core = vs.core
 
 __author__ = "LightArrowsEXE"
 __license__ = 'MIT'
-__version__ = '1.1'
+__version__ = '1.2'
 
 
 # Slightly modified from kagefunc to remove some dependencies
@@ -35,9 +35,7 @@ def generate_keyframes(clip: vs.VideoNode, out_path=None, no_header=False) -> No
     else:
         clip = core.wwxd.WWXD(clip) # speed up the analysis by resizing first
 
-    txt = "# Scxvid log file, using qpfile format\n# Please do not modify this file\n\n" if args.scxvid else \
-            "# WWXD log file, using qpfile format\n# Please do not modify this file\n\n"
-    out_txt = '' if no_header else txt
+    out_txt = '' if no_header else "# WWXD log file, using qpfile format\n# Please do not modify this file\n\n"
 
     for i in range(clip.num_frames):
         if args.scxvid:
