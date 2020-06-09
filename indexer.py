@@ -18,7 +18,7 @@ except ModuleNotFoundError:
 
 __author__ = "LightArrowsEXE"
 __license__ = 'MIT'
-__version__ = '1.0'
+__version__ = '1.1'
 
 
 def index():
@@ -28,8 +28,8 @@ def index():
     for f in files:
         mime = mimetypes.types_map.get(path.splitext(f)[-1], "")
         if mime.startswith("video/") or f.endswith('.m2ts') or f.endswith('.mkv'):
-            print(f"[*] Generating index file for {f}")
-            src(f, force_lsmas=args.force)
+            print(f"[+] Generating index file for {f}")
+            print(src(f, force_lsmas=args.force))
 
 
 if __name__ == "__main__":
