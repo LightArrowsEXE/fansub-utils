@@ -19,7 +19,7 @@ import tempfile
 
 __author__ = "LightArrowsEXE"
 __license__ = 'MIT'
-__version__ = '1.0.4'
+__version__ = '1.0.5'
 
 
 ignored_formats = ["audio/opus", "audio/aac"]
@@ -57,7 +57,8 @@ def encode(f):
             encode_flac(f)
         if not args.noaac:
             encode_aac(f)
-        os.remove(f)
+        if not args.keep:
+            os.remove(f)
 
 
 if __name__ == "__main__":
@@ -65,6 +66,9 @@ if __name__ == "__main__":
     parser.add_argument("-R", "--recursive",
                         action="store_true", default=False,
                         help="Encode files recursively (default: %(default)s)")
+    parser.add_argument("-K", "--keep",
+                        action="store_true", default=False,
+                        help="Do not delete source file after re-encoding (default: %(default)s)")
     parser.add_argument("-W", "--wav_only",
                         action="store_true", default=False,
                         help="Encode just a PCM file (default: %(default)s)")
