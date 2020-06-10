@@ -18,11 +18,11 @@ except ModuleNotFoundError:
 
 __author__ = "LightArrowsEXE"
 __license__ = 'MIT'
-__version__ = '1.1'
+__version__ = '1.1.2'
 
 
 def index():
-    print(f"Generating keyframes:\n")
+    print(f"Indexing files:\n")
     files = glob('**/*', recursive=True) if args.recursive else glob('*')
 
     for f in files:
@@ -39,7 +39,7 @@ if __name__ == "__main__":
                         help="search files recursively (default: %(default)s)")
     parser.add_argument("-F", "--force",
                         action="store_true", default=False,
-                        help="forces l-smash (default: %(default)s)")
+                        help="force l-smash for indexing (default: %(default)s)")
     args = parser.parse_args()
     index()
-    input("\nDone generating index files. \n(press Enter to continue...)")
+    input("\nDone generating index files. \n(press Enter to close this window...)")
