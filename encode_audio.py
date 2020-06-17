@@ -7,19 +7,18 @@
      - flac         (https://xiph.org/flac/index.html)
      - qaac         (https://github.com/nu774/qaac)
      - ffmpeg       (https://www.ffmpeg.org/download.html)
-
 """
+
 import argparse
 import glob
 import mimetypes
 import os
-import re
 import subprocess
 import tempfile
 
 __author__ = "LightArrowsEXE"
 __license__ = 'MIT'
-__version__ = '1.0.5'
+__version__ = '1.0.6'
 
 
 ignored_formats = ["audio/opus", "audio/aac"]
@@ -30,7 +29,9 @@ def main():
 
     for f in filelist:
         mime = mimetypes.types_map.get(os.path.splitext(f)[-1], "")
-        if mime.startswith("audio/") or mime.startswith("video/") or f.endswith('.m2ts'):
+        if f.endswith('.m2ts'):
+            encode(f, wav_only=True)
+        elif mime.startswith("audio/") or mime.startswith("video/"):
             if mime not in ignored_formats:
                 encode(f)
 
@@ -45,9 +46,9 @@ def encode_aac(f):
     subprocess.run(["qaac", f"{temp[1]}.wav", "-V 127", "--no-delay", "-o", f"{os.path.splitext(f)[0]}.m4a"])
 
 
-def encode(f):
+def encode(f, wav_only: bool = False):
     print(f"\n{f}\n")
-    if args.wav_only:
+    if wav_only:
         if args.track:
             subprocess.run(["eac3to", f, "-log=NUL", f"{args.track}:", f"{os.path.splitext(f)[0]}_Track0{args.track}.wav"])
         else:
@@ -69,9 +70,6 @@ if __name__ == "__main__":
     parser.add_argument("-K", "--keep",
                         action="store_true", default=False,
                         help="Do not delete source file after re-encoding (default: %(default)s)")
-    parser.add_argument("-W", "--wav_only",
-                        action="store_true", default=False,
-                        help="Encode just a PCM file (default: %(default)s)")
     parser.add_argument("-T", "--track",
                         action="store", type=int, default=None,
                         help="Track to encode using eac3to. If none; first audio track (default: %(default)s)")
