@@ -15,7 +15,7 @@ import os
 
 __author__  = 'LightArrowsEXE'
 __license__ = 'MIT'
-__version__ = '1.0'
+__version__ = '1.0.2'
 
 
 def fast_scandir(dirname):
@@ -37,7 +37,6 @@ def main():
             os.rmdir(pdir)
             print(f"[-] Deleted \"{pdir}\"")
         except OSError: # catch and continue if non-empty
-            print(f"[*] Retained \"{pdir}\"")
             continue
 
 
