@@ -14,7 +14,7 @@ import re
 
 __author__ = "LightArrowsEXE"
 __license__ = 'MIT'
-__version__ = '1.0'
+__version__ = '1.1'
 
 
 def calculateCRC(f):
@@ -43,7 +43,7 @@ def main(recursive=False):
 
     for f in filelist:
         mime = mimetypes.types_map.get(os.path.splitext(f)[-1], "")
-        if mime.startswith("video/") or f.endswith('.m2ts') or f.endswith('.mkv'):
+        if mime.startswith("video/") or f.endswith('.mkv'):
             if args.strip:
                 strip_crc(f)
             else:
