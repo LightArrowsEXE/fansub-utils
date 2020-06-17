@@ -13,16 +13,16 @@ from os import path
 try:
     from lvsfunc import src
 except ModuleNotFoundError:
-        raise ModuleNotFoundError("Cannot find lvsfunc: Please install it here <https://github.com/Irrational-Encoding-Wizardry/lvsfunc/>")
+    raise ModuleNotFoundError("Cannot find lvsfunc: Please install it here <https://github.com/Irrational-Encoding-Wizardry/lvsfunc/>")
 
 
 __author__ = "LightArrowsEXE"
 __license__ = 'MIT'
-__version__ = '1.1.2'
+__version__ = '1.1.3'
 
 
 def index():
-    print(f"Indexing files:\n")
+    print("Indexing files:\n")
     files = glob('**/*', recursive=True) if args.recursive else glob('*')
 
     for f in files:
