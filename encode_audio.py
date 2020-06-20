@@ -29,7 +29,7 @@ def main():
                 if args.recursive else glob.glob('*'))
 
     for f in filelist:
-        mime = mimetypes.types_map.get(os.pathsplitext(f)[-1], "")
+        mime = mimetypes.types_map.get(os.path.splitext(f)[-1], "")
         if f.endswith('.m2ts'):
             encode(f, wav_only=True)
         elif mime.startswith("audio/") or mime.startswith("video/"):
@@ -38,15 +38,15 @@ def main():
 
 
 def encode_flac(f):
-    subprocess.run(["eac3to", f, "-log=NUL", f"{os.pathsplitext(f)[0]}.flac"])
+    subprocess.run(["eac3to", f, "-log=NUL", f"{os.path.splitext(f)[0]}.flac"])
 
 
 def encode_aac(f):
-    temp = tempfile.mkstemp(prefix=f"{os.pathsplitext(f)[0]}_")
+    temp = tempfile.mkstemp(prefix=f"{os.path.splitext(f)[0]}_")
     subprocess.run(["ffmpeg", "-i", f, "-loglevel", "panic",
                     "-stats", f"{temp[1]}.wav"])
     subprocess.run(["qaac", f"{temp[1]}.wav", "-V 127",
-                    "--no-delay", "-o", f"{os.pathsplitext(f)[0]}.m4a"])
+                    "--no-delay", "-o", f"{os.path.splitext(f)[0]}.m4a"])
 
 
 def encode(f, wav_only: bool = False):
@@ -54,10 +54,10 @@ def encode(f, wav_only: bool = False):
     if wav_only:
         if args.track:
             subprocess.run(["eac3to", f, "-log=NUL", f"{args.track}:",
-                            f"{os.pathsplitext(f)[0]}_Track0{args.track}.wav"])
+                            f"{os.path.splitext(f)[0]}_Track0{args.track}.wav"])
         else:
             subprocess.run(["eac3to", f, "-log=NUL",
-                            f"{os.pathsplitext(f)[0]}.wav"])
+                            f"{os.path.splitext(f)[0]}.wav"])
     else:
         if not args.noflac:
             encode_flac(f)
@@ -74,12 +74,10 @@ if __name__ == "__main__":
                         help="Encode files recursively (default: %(default)s)")
     parser.add_argument("-K", "--keep",
                         action="store_true", default=False,
-                        help="Do not delete source file"
-                        + " after re-encoding (default: %(default)s)")
+                        help="Do not delete source file after re-encoding (default: %(default)s)")
     parser.add_argument("-T", "--track",
                         action="store", type=int, default=None,
-                        help="Track to encode using eac3to."
-                        + " If none; first audio track (default: %(default)s)")
+                        help="Track to encode using eac3to. If none; first audio track (default: %(default)s)")
     parser.add_argument("--noflac",
                         action="store_true", default=False,
                         help="Disable FLAC encoding (default: %(default)s)")
