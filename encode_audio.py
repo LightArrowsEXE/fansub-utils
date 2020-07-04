@@ -68,11 +68,10 @@ def encode_main(f, wav_only: bool = False):
         if not args.noflac:
             encode_flac(f)
         if not args.nolossy:
-            codec = args.codec.lower()
-            if codec in ['aac']:
-                encode_aac(f)
-            elif codec in ['opus']:
+            if args.codec == 'opus':
                 encode_opus(f)
+            elif args.codec == 'aac':
+                encode_aac(f)
         if not args.keep:
             os.remove(f)
 
@@ -83,7 +82,7 @@ if __name__ == "__main__":
                         action="store_true", default=False,
                         help="Encode files recursively (default: %(default)s)")
     parser.add_argument("-C", "--codec",
-                        action="store", type=str, default="opus",
+                        action="store", type=str.lower, default="opus",
                         choices=('aac', 'opus'),
                         help="Pick lossy codec to encode with (default: %(default)s)")
     parser.add_argument("-B", "--bitrate",
