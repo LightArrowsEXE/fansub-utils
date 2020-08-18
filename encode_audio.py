@@ -82,7 +82,7 @@ if __name__ == "__main__":
                         action="store_true", default=False,
                         help="Encode files recursively (default: %(default)s)")
     parser.add_argument("-C", "--codec",
-                        action="store", type=str.lower, default="opus",
+                        action="store", type=str.lower, default="aac",
                         choices=('aac', 'opus'),
                         help="Pick lossy codec to encode with (default: %(default)s)")
     parser.add_argument("-B", "--bitrate",
