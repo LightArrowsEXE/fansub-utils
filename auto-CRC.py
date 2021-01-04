@@ -14,7 +14,7 @@ import re
 
 __author__ = "LightArrowsEXE"
 __license__ = 'MIT'
-__version__ = '1.1'
+__version__ = '1.2'
 
 
 def calculateCRC(f):
@@ -51,8 +51,10 @@ def main(recursive=False):
                 if re.search(crc, f):
                     print(f"[*] {f}, correct CRC already present in filename")
                 else:
+                    strip_crc(f)
+                    str_filename = re.sub(r'\[[0-9a-fA-F]{8}\]', '', f)
                     filename = f'{os.path.splitext(f)[0]} [{crc}]{os.path.splitext(f)[1]}'
-                    os.rename(f, filename)
+                    os.rename(str_filename, filename)
                     print(f"[+] {f}, CRC: [{crc}]")
 
 
