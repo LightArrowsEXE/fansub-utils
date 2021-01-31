@@ -32,7 +32,7 @@ def main():
         mime = mimetypes.types_map.get(os.path.splitext(f)[-1], "")
         if f.endswith('.m2ts'):
             encode_main(f, wav_only=True)
-        elif mime.startswith("audio/") or mime.startswith("video/"):
+        elif mime.startswith("audio/") or mime.startswith("video/") or f.endswith('.mka'):
             if mime not in ignored_formats:
                 encode_main(f)
 
