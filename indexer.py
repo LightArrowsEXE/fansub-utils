@@ -10,15 +10,18 @@ import mimetypes
 from glob import glob
 from os import path
 
+import vapoursynth as vs
+
 try:
     from lvsfunc import src
 except ModuleNotFoundError:
-    raise ModuleNotFoundError("Cannot find lvsfunc: Please install it here <https://github.com/Irrational-Encoding-Wizardry/lvsfunc/>")
+    raise ModuleNotFoundError("Cannot find lvsfunc: Please install it here:"
+                              "<https://github.com/Irrational-Encoding-Wizardry/lvsfunc/>")
 
 
 __author__ = "LightArrowsEXE"
 __license__ = 'MIT'
-__version__ = '1.1.3'
+__version__ = '1.1.4'
 
 
 def index():
@@ -28,14 +31,17 @@ def index():
     for f in files:
         mime = mimetypes.types_map.get(path.splitext(f)[-1], "")
         if mime.startswith("video/") or f.endswith('.m2ts') or f.endswith('.mkv'):
-            print(f"[+] Generating index file for {f}")
-            print(src(f, force_lsmas=args.force))
+            try:
+                print(f"[+] Generating index file for {f}")
+                print(src(f, force_lsmas=args.force))
+            except vs.Error as e:
+                print(f'Error while trying to index file!\n{e}\nContinuing to index other files.\n')
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-R", "--recursive",
-                        action="store_true", default=False,
+                        action="store_false", default=True,
                         help="search files recursively (default: %(default)s)")
     parser.add_argument("-F", "--force",
                         action="store_true", default=False,
