@@ -11,50 +11,44 @@ import glob
 import mimetypes
 import os
 import re
+from typing import Literal
 
 __author__ = "LightArrowsEXE"
 __license__ = 'MIT'
-__version__ = '1.2'
+__version__ = '1.3'
 
 
-def calculateCRC(f):
+crc32_hash: Literal = r'\s?\[[0-9a-fA-F]{8}\]'
+
+
+def calculate_crc(f) -> str:
     with open(f, 'rb') as file:
         calc = file.read()
     return "%08X" % (binascii.crc32(calc) & 0xFFFFFFFF)
 
 
-def strip_crc(f):
-    if re.search(r'\[[0-9a-fA-F]{8}\]', f):
-        strip = re.sub(r'\[[0-9a-fA-F]{8}\]', '', f)
-
-        # Hate how re.sub leaves some whitespace
-        filename = os.path.splitext(strip)[0]
-        filename = filename[:-1] + os.path.splitext(strip)[1]
-
-        os.rename(f, filename)
-        print(f"[-] {f} stripped")
+def strip_crc(f) -> None:
+    if re.search(crc32_hash, f):
+        os.rename(f, re.sub(crc32_hash, '', f))
+        print(f"[-] {f} wrong CRC stripped")
 
 
-def main(recursive=False):
-    if args.recursive:
-        filelist = glob.glob('**/*', recursive=True)
-    else:
-        filelist = glob.glob('*')
+def main() -> None:
+    files = glob.glob('**/*' if args.recursive else '*', recursive=True)
 
-    for f in filelist:
+    for f in files:
         mime = mimetypes.types_map.get(os.path.splitext(f)[-1], "")
         if mime.startswith("video/") or f.endswith('.mkv'):
             if args.strip:
                 strip_crc(f)
             else:
-                crc = calculateCRC(f)
+                crc = calculate_crc(f)
                 if re.search(crc, f):
                     print(f"[*] {f}, correct CRC already present in filename")
                 else:
                     strip_crc(f)
-                    str_filename = re.sub(r'\[[0-9a-fA-F]{8}\]', '', f)
-                    filename = f'{os.path.splitext(f)[0]} [{crc}]{os.path.splitext(f)[1]}'
-                    os.rename(str_filename, filename)
+                    str_f = re.sub(crc32_hash, '', f)
+                    os.rename(str_f, f'{os.path.splitext(str_f)[0]} [{crc}]{os.path.splitext(str_f)[1]}')
                     print(f"[+] {f}, CRC: [{crc}]")
 
 
@@ -68,4 +62,5 @@ if __name__ == "__main__":
                         help="strip CRCs from filenames (default: %(default)s)")
     parser.parse_args()
     args = parser.parse_args()
+
     main()
